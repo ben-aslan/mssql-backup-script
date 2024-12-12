@@ -136,13 +136,13 @@ HOST="$host"
 PORT="$port"
 MSSQL_EXEC="$mssqlexec"
 
-DATABASES=\$MSSQL_EXEC -S "\$HOST,\$PORT" -U "\$USER" -P "\$PASSWORD" -Q "SELECT Name from sys.Databases" | grep -Ev "(----|Name|master|tempdb|model|msdb|affected\)$|\s\n|^$)"
+DATABASES=\`\$MSSQL_EXEC -S "\$HOST,\$PORT" -U "\$USER" -C -P "\$PASSWORD" -Q "SELECT Name from sys.Databases" | grep -Ev "(----|Name|master|tempdb|model|msdb|affected\)$|\s\n|^$)"\`
 
 for DBNAME in \$DATABASES; do
-    touch "/opt/mssql-backup/db-backup/${DBNAME}.BAK"
-    chown mssql "/opt/mssql-backup/db-backup/${DBNAME}.BAK"
+    touch "/opt/mssql-backup/db-backup/\${DBNAME}.BAK"
+    chown mssql "/opt/mssql-backup/db-backup/\${DBNAME}.BAK"
     echo -n " - Backing up database \"\${DBNAME}\"... "
-    \$MSSQL_EXEC -H "\$HOST,\$PORT" -U "\$USER" -P "\$PASSWORD" -Q "BACKUP DATABASE [\${DBNAME}] TO  DISK = '/opt/mssql-backup/db-backup/\${DBNAME}.BAK' WITH NOFORMAT, NOINIT, NAME = '\${DBNAME}-full', SKIP, NOREWIND, NOUNLOAD, STATS = 10 --with compression"
+    \$MSSQL_EXEC -H "\$HOST,\$PORT" -U "\$USER" -C -P "\$PASSWORD" -Q "BACKUP DATABASE [\${DBNAME}] TO  DISK = '/opt/mssql-backup/db-backup/\${DBNAME}.BAK' WITH NOFORMAT, NOINIT, NAME = '\${DBNAME}-full', SKIP, NOREWIND, NOUNLOAD, STATS = 10 --with compression"
 done
 
 
